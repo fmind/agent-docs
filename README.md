@@ -2,11 +2,13 @@
 
 [![CI](https://github.com/fmind/agent-docs/actions/workflows/ci.yml/badge.svg)](https://github.com/fmind/agent-docs/actions/workflows/ci.yml) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE) [![Claude Code](https://img.shields.io/badge/Claude%20Code-supported-D97706)](https://github.com/anthropics/claude-code) [![Gemini CLI](https://img.shields.io/badge/Gemini%20CLI-supported-4285F4)](https://github.com/google-gemini/gemini-cli) [![GitHub Copilot](https://img.shields.io/badge/GitHub%20Copilot-supported-181717)](https://github.com/features/copilot)
 
-> **Project docs that answer locally before the web.**
->
-> ![An AI coding agent reading from a small, neatly labeled bookshelf of project docs sitting at hand, while a closed web browser waits in the background.](./hero.jpg)
+![agent-docs — Project docs that answer locally before the web](image.jpeg)
 
-Agent Docs is a small set of Agent Skills — file-based, harness-agnostic — that give a coding agent a curated, on-disk reference for the tools, services, and frameworks the project actually uses. The same `skills/` tree runs in Claude Code, Gemini CLI, and GitHub Copilot.
+> **Project docs that answer locally before the web.**
+
+**Agent Docs** is a small set of file-based Agent Skills that give a coding agent a curated, on-disk reference for the tools, services, and frameworks your project actually uses. Install once — the same `skills/` tree runs in Claude Code, Gemini CLI, and GitHub Copilot.
+
+**The payoff:** the agent lands on the right upstream URL in one hop instead of N web searches, and every agent on every run gets the same answer for the same question.
 
 ## Why this exists
 
@@ -21,43 +23,56 @@ Agent Docs flips the default: the project ships a tiny, dated reference set unde
 ## What you get
 
 - **Local-first lookups.** `use-agent-docs` teaches the agent to consult `.agents/docs/INDEX.md` before web research — fewer round-trips, more reproducible answers.
-- **Curated, not copied.** Each `DOC.md` is one screen: summary, key concepts, frequently used flags, canonical upstream URLs. Exhaustive option tables stay upstream.
-- **Honest staleness.** Every page ends with `_Last verified: YYYY-MM-DD against <upstream URL>._` and `INDEX.md` propagates the oldest date per topic — agents see the staleness floor at a glance.
-- **Re-verifiable.** `refresh-agent-docs` re-fetches upstream, fixes drift, repairs dead links, and bumps the dates — keeping the set honest over time.
-- **Subtopic split when warranted.** Large surfaces (e.g. a CLI's hooks, extensions, MCP servers) get sibling files like `HOOKS.md`, `EXTENSIONS.md` — each with its own footer and refresh clock.
+- **Navigation map first.** Each `DOC.md` leads with a structured **documentation map** — the upstream nav, captured as one-line link entries grouped by section — plus a brief summary and key concepts. The agent lands on the right upstream URL in one hop instead of N web searches. Soft cap: ~100 lines per `DOC.md`, ~150 for a subtopic deep-dive.
+- **Progressive disclosure.** Default gather is lightweight: one fetch per topic produces the link map. Captured snippets (paste-ready patterns) are opt-in — extended on user request ("deepen X"), or backfilled when `use-agent-docs` fetches upstream for depth and the user opts in.
+- **Honest staleness.** Every page opens with YAML frontmatter (`last_verified`, optional `upstream_commit`, `sources.{docs,repo,changelog,release}`). `INDEX.md` propagates the oldest date per topic — agents see the staleness floor at a glance, and tooling can parse it without regex.
+- **Smart refresh.** `refresh-agent-docs` reads the frontmatter and short-circuits when upstream hasn't moved (commit-pin match, or no changelog entries newer than `last_verified`); falls through to a link-rot scan of the documentation map. Pages it cannot re-verify get a visible `> ⚠ Stale` banner until the next successful run.
+- **Tiered capture.** The documentation map is captured by default (T1: page title + URL + one-line hook, every entry in upstream nav). Paste-ready snippets are captured **on request** with a per-block source link (T2, capped at ~5 per topic). Volatile values (model IDs, pricing, preview flags) are linked, never copied (T3). Captured details are verbatim — never paraphrased, inferred, or auto-completed.
+- **Subtopic split when warranted.** Large surfaces (e.g. a CLI's hooks, extensions, MCP servers) get sibling files like `HOOKS.md`, `EXTENSIONS.md` — each with its own refresh clock.
 - **Install once, use anywhere.** The same `skills/` tree drives Claude Code, Gemini CLI, and GitHub Copilot.
 
 ## The three skills
 
-- **`/gather-agent-docs`** — Seed `.agents/docs/` with short overviews and canonical URLs for the project's key topics (tools, services, frameworks). Writes `INDEX.md` and one `DOC.md` per topic.
-- **`/use-agent-docs`** — Before web-searching for a project topic, check `.agents/docs/INDEX.md` and read the matching `DOC.md`. No-op when the file is missing.
-- **`/refresh-agent-docs`** — Re-verify entries against upstream: update drifted flags, repair dead links, bump `Last verified` dates. Default scope is every topic; can be targeted at one topic or one subtopic file.
+- **`/gather-agent-docs`** — Seed `.agents/docs/` with a navigation map for the project's key topics (tools, services, frameworks). Default writes `INDEX.md` and one `DOC.md` per topic with summary, key concepts, and a structured link index of upstream pages. On request ("deepen X"), enriches a topic with up to ~5 paste-ready snippets.
+- **`/use-agent-docs`** — Before web-searching for a project topic, check `.agents/docs/INDEX.md` and scan the matching `DOC.md`'s documentation map for the right upstream URL. No-op when the file is missing.
+- **`/refresh-agent-docs`** — Re-verify entries against upstream: repair dead links in the documentation map, update drifted snippets, bump `last_verified` dates, insert a `> ⚠ Stale` banner when a page can't be re-verified. Default scope is every topic; targets a single topic or `topic/subtopic` when named. Smart-refresh path uses `upstream_commit` / `sources.changelog` to skip work when upstream hasn't changed.
 
 The three pair into a small loop:
 
 ```text
 gather → use → (drift detected) → refresh → use → ...
+       ↘ (depth needed) → deepen ↗
 ```
 
 ## Walkthrough
 
 ```text
 $ /gather-agent-docs
-  → inspects the project, picks 3–8 topics worth documenting
-  → fetches each topic's canonical "overview" page (and any pages backing captured flags)
-  → writes .agents/docs/<topic>/DOC.md with summary, key concepts, flags, canonical URLs, footer
+  → inspects the project (package manifests, CI configs, IaC files), picks 3–8 topics
+  → fetches one upstream nav source per topic (sidebar / docs home / sitemap)
+  → writes .agents/docs/<topic>/DOC.md with frontmatter, summary, key concepts, documentation map
   → writes .agents/docs/INDEX.md with one dated line per topic
   → "Seeded 5 topics under .agents/docs/. Review the diff before committing."
 
 $ /use-agent-docs       # invoked implicitly whenever the agent is about to web-search
-  → reads INDEX.md, opens the matching DOC.md, follows canonical URLs for specifics
-  → falls back to web search only if the topic is missing or the upstream link is dead
+  → reads INDEX.md, opens DOC.md, scans the documentation map for the right entry
+  → fetches the matching upstream URL on demand (one hop, not N web searches)
+  → optionally backfills a paste-ready snippet to DOC.md's Patterns section if the user opts in
+
+$ /gather-agent-docs deepen gemini-cli
+  → revisits gemini-cli's DOC.md; captures up to 5 high-frequency snippets (T2) with inline _Source: …_
+  → adds a Patterns section, bumps last_verified
 
 $ /refresh-agent-docs gemini-cli
-  → re-fetches every canonical URL under .agents/docs/gemini-cli/
-  → diffs captured flags, fixes drift, repairs dead links, bumps Last verified
-  → "gemini-cli: minor edits (DOC.md), link repaired (HOOKS.md). INDEX.md date set to 2026-05-08."
+  → tries the cheap path first: matches upstream_commit / scans sources.changelog since last_verified
+  → falls through to a link-rot scan of the documentation map; repairs moved/renamed pages
+  → re-verifies any captured snippets against their inline _Source: …_ links
+  → "gemini-cli: links repaired (DOC.md), unchanged (HOOKS.md, smart path)."
 ```
+
+## See it in action
+
+[`examples/`](./examples/) ships a worked sample of what `/gather-agent-docs` produces in an end-user project — two topics (`gemini-cli`, `cloud-run`), one with a deepened subtopic split (`HOOKS.md`). The directory layout matches what the skill writes into your own repo under `.agents/docs/`.
 
 ## Install
 
@@ -123,6 +138,7 @@ agent-docs/
 │   ├── gather-agent-docs/SKILL.md     # user-facing: seed .agents/docs/
 │   ├── use-agent-docs/SKILL.md        # user-facing: read .agents/docs/ before web research
 │   └── refresh-agent-docs/SKILL.md    # user-facing: re-verify entries against upstream
+├── examples/                          # worked sample of what /gather-agent-docs produces
 ├── .claude-plugin/                    # Claude Code plugin manifest + bundled marketplace
 ├── gemini-extension.json              # Gemini CLI extension manifest
 ├── plugin.json                        # GitHub Copilot manifest
@@ -135,21 +151,21 @@ In an end-user project after `/gather-agent-docs`:
 .agents/docs/
 ├── INDEX.md                           # one dated entry per topic, pointing to its DOC.md
 └── <topic>/                           # kebab-case slug (e.g. gemini-cli, cloud-run)
-    ├── DOC.md                         # entry point: summary, key concepts, flags, canonical URLs, footer
+    ├── DOC.md                         # entry point: summary, key concepts, documentation map, optional patterns
     └── <SUBTOPIC>.md                  # optional deep dive (e.g. EXTENSIONS.md, HOOKS.md)
 ```
 
-`INDEX.md`'s per-topic date is the **oldest** `Last verified` among the topic's files (`DOC.md` plus any subtopic files), so the index honestly reflects the staleness floor.
+`INDEX.md`'s per-topic date is the **oldest** `last_verified` among the topic's files (`DOC.md` plus any subtopic files), so the index honestly reflects the staleness floor.
 
 ### When to split a subtopic
 
-`gather-agent-docs` keeps each `DOC.md` to one screen. Split a subsystem into a sibling `<SUBTOPIC>.md` when **all** of the following hold:
+Each `DOC.md` aims to be a self-sufficient navigation map for the topic (soft cap ~100 lines; ~150 for subtopic deep-dives). Split a subsystem into a sibling `<SUBTOPIC>.md` when **all** of the following hold:
 
 - The subsystem has its own canonical upstream page(s) — distinct from the topic's overview.
+- The deepened version (with captured snippets) would push past the soft cap.
 - Agents reach for that depth repeatedly in this project, not just hypothetically.
-- Capturing it in `DOC.md` would push past one screen.
 
-Fold a subtopic back into `DOC.md` if it shrinks below its own weight.
+The link map alone rarely justifies a split — surfaces are wide but each entry is one line. Fold a subtopic back into `DOC.md` if it shrinks below its own weight.
 
 ## Contributing
 

@@ -1,6 +1,10 @@
+---
+last_verified: 2026-05-08
+---
+
 # .agents/docs — topic reference index
 
-High-level overviews of the topics covered in this project. Pointers to upstream docs, not copies.
+Navigation maps, not copies. Read the matching `DOC.md` to find the right upstream URL, then fetch upstream for depth.
 
 ## Topics
 
@@ -9,6 +13,6 @@ High-level overviews of the topics covered in this project. Pointers to upstream
 
 ## How to use
 
-- Read the relevant DOC.md before web-searching a known topic.
-- Follow links into upstream docs for flags, schemas, or version-pinned details.
-- The leading `[YYYY-MM-DD]` is the last-verified date. If it looks stale, confirm captured details against upstream before acting on them.
+- Open the relevant `DOC.md` and scan the **Documentation map** to locate the right upstream page.
+- Fetch upstream from there when the question needs flag-level detail or schema fields.
+- The leading `[YYYY-MM-DD]` is the last-verified date — the **oldest** among that topic's files. If it looks stale, confirm captured details against upstream before acting on them.

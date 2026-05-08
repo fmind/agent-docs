@@ -1,30 +1,75 @@
+---
+last_verified: 2026-05-08
+sources:
+  docs: https://google-gemini.github.io/gemini-cli/docs/cli/hooks.html
+  repo: https://github.com/google-gemini/gemini-cli
+  changelog: https://github.com/google-gemini/gemini-cli/releases
+---
+
 # Gemini CLI — Hooks
 
-Hooks are user-defined shell commands that run on lifecycle events (e.g. before/after a tool call, on session start, on stop). They let you block dangerous tools, auto-format files, inject context, or enforce project policy without writing a custom subagent.
+User-defined shell commands that run on lifecycle events. Block dangerous tools, auto-format files, inject context, or enforce project policy without writing a custom subagent.
 
 ## Key concepts
 
-- **Configuration** — declared in `.gemini/settings.json` under `hooks`. Each event maps to one or more matchers; each matcher carries a list of commands.
-- **Stdin/stdout JSON contract** — the hook receives a JSON event payload on stdin and may emit JSON on stdout to influence the harness (e.g. additional system context, a refusal, modified tool arguments).
-- **Exit codes** — `0` allows the action to proceed; non-zero signals a failure. Specific codes can deny a tool call or abort the turn depending on the event type.
-- **Lifecycle events** — `PreToolUse`, `PostToolUse`, `SessionStart`, `Stop`, `Notification`, and others. Match on event + tool name (regex supported).
+- **Event** — a lifecycle moment the harness emits: `PreToolUse`, `PostToolUse`, `UserPromptSubmit`, `SessionStart`, `Stop`, `Notification`.
+- **Matcher** — a regex on the tool name (for `PreToolUse` / `PostToolUse`) or omitted for non-tool events.
+- **Hook command** — a shell command, with optional `timeout` (ms).
+- **JSON contract** — stdin payload from harness; stdout JSON parsed as a directive (additional context, refusal reason, modified args). Non-JSON stdout is ignored.
+- **Exit code** — `0` allows the action; non-zero blocks `PreToolUse` / `UserPromptSubmit`, surfaces a warning on `PostToolUse`.
 
-## Common patterns
+## Documentation map
 
-- **Block dangerous tools.** A `PreToolUse` hook that exits non-zero on `Bash` calls containing `rm -rf /` or `git push --force`.
-- **Auto-format on write.** A `PostToolUse` hook on `Write|Edit` that runs Prettier / Black against the changed paths.
-- **Session-start context injection.** A `SessionStart` hook that prints repo-specific system context to stdout — adds it to the model's context for the session.
-- **Audit log.** A `PostToolUse` hook that appends a JSON line to `.gemini/audit.log` for every tool call.
+- [Hooks reference](https://google-gemini.github.io/gemini-cli/docs/cli/hooks.html) — events, matcher syntax, JSON contract, examples.
+- [`settings.json` `hooks` schema](https://google-gemini.github.io/gemini-cli/docs/cli/configuration.html#hooks) — top-level shape.
+- [Repo source](https://github.com/google-gemini/gemini-cli/tree/main/packages/cli/src/hooks).
+
+## Patterns
+
+Block dangerous Bash invocations:
+
+```json
+"hooks": {
+  "PreToolUse": [
+    {
+      "matcher": "Bash",
+      "hooks": [{ "type": "command", "command": "./scripts/guard-bash.sh", "timeout": 5000 }]
+    }
+  ]
+}
+```
+
+_Source: <https://google-gemini.github.io/gemini-cli/docs/cli/hooks.html>_
+
+Auto-format on write:
+
+```json
+"hooks": {
+  "PostToolUse": [
+    {
+      "matcher": "Write|Edit",
+      "hooks": [{ "type": "command", "command": "npx prettier --write" }]
+    }
+  ]
+}
+```
+
+_Source: <https://google-gemini.github.io/gemini-cli/docs/cli/hooks.html>_
+
+Session-start context injection:
+
+```json
+"hooks": {
+  "SessionStart": [
+    { "hooks": [{ "type": "command", "command": "./scripts/inject-context.sh" }] }
+  ]
+}
+```
+
+_Source: <https://google-gemini.github.io/gemini-cli/docs/cli/hooks.html>_
 
 ## Pitfalls
 
-- **Silent failures.** A misconfigured hook command can hang the harness or be ignored without a clear error — test hooks in isolation first.
-- **Performance budget.** Hooks run synchronously on every matched event; slow hooks compound across a session.
-- **Path scoping.** Workspace hooks override global hooks for the same event/matcher — confirm which file is winning before debugging behavior.
-
-## Canonical docs
-
-- <https://google-gemini.github.io/gemini-cli/docs/cli/configuration.html>
-- <https://github.com/google-gemini/gemini-cli>
-
-_Last verified: 2026-05-08 against <https://google-gemini.github.io/gemini-cli/>._
+- **Silent failures** — a misconfigured command can hang or be ignored without a clear error; test in isolation.
+- **Performance budget** — hooks run synchronously on every matched event; slow hooks compound across a session. Set `timeout` (ms) to bound them.
+- **Path scoping** — workspace hooks override global hooks for the same event/matcher.
