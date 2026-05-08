@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
+  "name": "agent-docs",
+  "description": "Project docs that answer locally before the web — Agent Skills for AI coding agents.",
+  "author": {
+    "name": "Médéric Hurier",
+    "email": "github@fmind.dev",
+    "url": "https://fmind.dev"
+  },
+  "homepage": "https://github.com/fmind/agent-docs",
+  "repository": "https://github.com/fmind/agent-docs",
+  "license": "MIT",
+  "keywords": [
+    "agentic-coding",
+    "agent-skills",
+    "documentation",
+    "agent-docs",
+    "gemini-cli",
+    "claude-code",
+    "github-copilot"
+  ]
+}

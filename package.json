@@ -1,0 +1,31 @@
+{
+  "name": "agent-docs",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Project docs that answer locally before the web — Agent Skills for AI coding agents.",
+  "author": {
+    "name": "Médéric Hurier",
+    "email": "github@fmind.dev",
+    "url": "https://fmind.dev"
+  },
+  "homepage": "https://github.com/fmind/agent-docs",
+  "repository": "https://github.com/fmind/agent-docs",
+  "license": "MIT",
+  "keywords": [
+    "agentic-coding",
+    "agent-skills",
+    "documentation",
+    "agent-docs",
+    "gemini-cli",
+    "claude-code",
+    "github-copilot"
+  ],
+  "scripts": {
+    "lint": "prettier --check \"**/*.{md,json,yml,yaml,mjs}\" && markdownlint-cli2",
+    "format": "prettier --write \"**/*.{md,json,yml,yaml,mjs}\" && markdownlint-cli2 --fix"
+  },
+  "devDependencies": {
+    "markdownlint-cli2": "^0.22.1",
+    "prettier": "^3.8.3"
+  }
+}
