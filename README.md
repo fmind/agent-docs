@@ -102,6 +102,18 @@ For local development (live-link, edits reload on next session):
 gemini extensions link /path/to/agent-docs
 ```
 
+### Antigravity CLI
+
+```bash
+agy plugin install https://github.com/fmind/agent-docs
+```
+
+For local development (live-link, edits reload on next session):
+
+```bash
+agy plugin install /path/to/agent-docs
+```
+
 ### GitHub Copilot
 
 Copilot CLI:
