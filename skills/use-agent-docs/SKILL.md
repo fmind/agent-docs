@@ -1,6 +1,9 @@
 ---
 name: use-agent-docs
 description: Before web-searching or fetching docs for a project topic, check `.agents/docs/INDEX.md` and the matching `DOC.md` for a navigation map of curated upstream URLs. No-op if `INDEX.md` is missing.
+metadata:
+  author: fmind
+  url: https://github.com/fmind/agent-docs/tree/main/skills/use-agent-docs
 ---
 
 # Use Agent Docs

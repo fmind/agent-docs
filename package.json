@@ -1,6 +1,6 @@
 {
   "name": "agent-docs",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "private": true,
   "description": "Project docs that answer locally before the web — Agent Skills for AI coding agents.",
   "author": {

@@ -1,6 +1,9 @@
 ---
 name: refresh-agent-docs
 description: Re-verify entries in `.agents/docs/` against upstream — repair dead links in the documentation map, update drifted captured snippets, and bump `last_verified` dates. Triggers include "refresh agent docs", "update .agents/docs", "re-verify the docs".
+metadata:
+  author: fmind
+  url: https://github.com/fmind/agent-docs/tree/main/skills/refresh-agent-docs
 ---
 
 # Refresh Agent Docs

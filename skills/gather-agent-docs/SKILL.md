@@ -1,6 +1,9 @@
 ---
 name: gather-agent-docs
 description: Seed `.agents/docs/` with a navigation map of the project's key topics (tools, services, frameworks, ...) — a structured link index to upstream pages, plus a brief summary and key concepts. Future agents read locally to find the right upstream URL in one hop. Triggers include "gather docs for X", "seed agent docs", "set up .agents/docs", "deepen agent docs".
+metadata:
+  author: fmind
+  url: https://github.com/fmind/agent-docs/tree/main/skills/gather-agent-docs
 ---
 
 # Gather Agent Docs
