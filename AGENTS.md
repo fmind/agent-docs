@@ -3,7 +3,7 @@
 ## Overview
 
 - agent-docs ships three skills (`/gather-agent-docs`, `/use-agent-docs`, `/refresh-agent-docs`) that give a coding agent a curated, on-disk reference for the project's key topics — answer locally before web-searching.
-- Skills are file-based and harness-agnostic: the same `skills/` tree works in Claude Code, Gemini CLI, and GitHub Copilot.
+- Skills are file-based and harness-agnostic: the same `skills/` tree works in Claude Code, Gemini CLI, GitHub Copilot, and OpenCode.
 - End-user state lives in `.agents/docs/INDEX.md` plus one `<topic>/DOC.md` per topic and optional `<SUBTOPIC>.md` sibling files. Each page opens with YAML frontmatter (`last_verified`, optional `upstream_commit`, `sources.{docs,repo,changelog,release}`); `INDEX.md`'s per-topic date is the **oldest** `last_verified` among the topic's files.
 
 ## Conventions
@@ -31,7 +31,7 @@
 
 - `skills/` — Agent Skills (`gather-agent-docs`, `use-agent-docs`, `refresh-agent-docs`).
 - `examples/` — worked sample of what `/gather-agent-docs` produces (two topics, one with a deepened subtopic split). Illustrative, not curated.
-- `.claude-plugin/`, `gemini-extension.json`, `plugin.json` — harness manifests for Claude Code, Gemini CLI, GitHub Copilot.
+- `.claude-plugin/`, `gemini-extension.json`, `plugin.json` — harness manifests for Claude Code, Gemini CLI, GitHub Copilot, and OpenCode.
 - `CLAUDE.md`, `GEMINI.md` — single-line `@AGENTS.md` includes so Claude Code and Gemini CLI pick up the canonical context.
 - `package.json`, `.markdownlint-cli2.jsonc`, `.prettierrc.json`, `.prettierignore` — `npm run lint` (Prettier + markdownlint-cli2) plus shared formatter config.
 - `.pre-commit-config.yaml`, `.github/workflows/ci.yml` — pre-commit hooks (large files, merge conflicts, private keys, lint) run locally and in CI on push and PR.

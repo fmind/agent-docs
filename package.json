@@ -1,6 +1,6 @@
 {
   "name": "agent-docs",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "private": true,
   "description": "Project docs that answer locally before the web — Agent Skills for AI coding agents.",
   "author": {
@@ -18,7 +18,8 @@
     "agent-docs",
     "gemini-cli",
     "claude-code",
-    "github-copilot"
+    "github-copilot",
+    "opencode"
   ],
   "scripts": {
     "lint": "prettier --check \"**/*.{md,json,yml,yaml,mjs}\" && markdownlint-cli2",

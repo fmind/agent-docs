@@ -1,12 +1,12 @@
 # Agent Docs
 
-[![CI](https://github.com/fmind/agent-docs/actions/workflows/ci.yml/badge.svg)](https://github.com/fmind/agent-docs/actions/workflows/ci.yml) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE) [![Claude Code](https://img.shields.io/badge/Claude%20Code-supported-D97706)](https://github.com/anthropics/claude-code) [![Gemini CLI](https://img.shields.io/badge/Gemini%20CLI-supported-4285F4)](https://github.com/google-gemini/gemini-cli) [![GitHub Copilot](https://img.shields.io/badge/GitHub%20Copilot-supported-181717)](https://github.com/features/copilot)
+[![CI](https://github.com/fmind/agent-docs/actions/workflows/ci.yml/badge.svg)](https://github.com/fmind/agent-docs/actions/workflows/ci.yml) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE) [![Claude Code](https://img.shields.io/badge/Claude%20Code-supported-D97706)](https://github.com/anthropics/claude-code) [![Gemini CLI](https://img.shields.io/badge/Gemini%20CLI-supported-4285F4)](https://github.com/google-gemini/gemini-cli) [![GitHub Copilot](https://img.shields.io/badge/GitHub%20Copilot-supported-181717)](https://github.com/features/copilot) [![OpenCode](https://img.shields.io/badge/OpenCode-supported-059669)](https://opencode.ai)
 
 ![agent-docs — Project docs that answer locally before the web](image.jpeg)
 
 > **Project docs that answer locally before the web.**
 
-**Agent Docs** is a small set of file-based Agent Skills that give a coding agent a curated, on-disk reference for the tools, services, and frameworks your project actually uses. Install once — the same `skills/` tree runs in Claude Code, Gemini CLI, and GitHub Copilot.
+**Agent Docs** is a small set of file-based Agent Skills that give a coding agent a curated, on-disk reference for the tools, services, and frameworks your project actually uses. Install once — the same `skills/` tree runs in Claude Code, Gemini CLI, GitHub Copilot, and OpenCode.
 
 **The payoff:** the agent lands on the right upstream URL in one hop instead of N web searches, and every agent on every run gets the same answer for the same question.
 
@@ -29,7 +29,7 @@ Agent Docs flips the default: the project ships a tiny, dated reference set unde
 - **Smart refresh.** `refresh-agent-docs` reads the frontmatter and short-circuits when upstream hasn't moved (commit-pin match, or no changelog entries newer than `last_verified`); falls through to a link-rot scan of the documentation map. Pages it cannot re-verify get a visible `> ⚠ Stale` banner until the next successful run.
 - **Tiered capture.** The documentation map is captured by default (T1: page title + URL + one-line hook, every entry in upstream nav). Paste-ready snippets are captured **on request** with a per-block source link (T2, capped at ~5 per topic). Volatile values (model IDs, pricing, preview flags) are linked, never copied (T3). Captured details are verbatim — never paraphrased, inferred, or auto-completed.
 - **Subtopic split when warranted.** Large surfaces (e.g. a CLI's hooks, extensions, MCP servers) get sibling files like `HOOKS.md`, `EXTENSIONS.md` — each with its own refresh clock.
-- **Install once, use anywhere.** The same `skills/` tree drives Claude Code, Gemini CLI, and GitHub Copilot.
+- **Install once, use anywhere.** The same `skills/` tree drives Claude Code, Gemini CLI, GitHub Copilot, and OpenCode.
 
 ## The three skills
 
@@ -113,6 +113,10 @@ For local development (live-link, edits reload on next session):
 ```bash
 agy plugin install /path/to/agent-docs
 ```
+
+### OpenCode
+
+To use these skills in OpenCode, place or clone the skill directories under `.agents/skills/` (for project scope) or `~/.agents/skills/` (for global scope). OpenCode automatically discovers and loads them.
 
 ### GitHub Copilot
 
