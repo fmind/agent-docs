@@ -190,6 +190,8 @@ Issues and PRs welcome. Two house rules to keep the skills lean:
 - **Skill files have line caps** (see `AGENTS.md` §Conventions) — they load into agent context on every run, so verbosity costs budget.
 - **Voice is imperative.** Skill bodies address the agent ("Read X, then write Y."), not a human reader — that prose belongs in this README.
 
+The npm overrides keep the existing linter on patched YAML, Markdown, and TOML parsers and update KaTeX. Keep these overrides until upstream dependencies include the fixes. Use Node.js 22.12 or newer. Run `npm ci`, `npm run lint`, and `uvx pre-commit run --all-files` to check the locked dependencies. `npm audit` still reports an upstream [braces advisory without a published fix](https://github.com/advisories/GHSA-vfj7-8cjw-p6xm); passing checks does not mean the development dependencies are vulnerability-free.
+
 ## License
 
 MIT — see [LICENSE](./LICENSE).
